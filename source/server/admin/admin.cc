@@ -133,7 +133,7 @@ absl::optional<std::string> maskParam(const Http::Utility::QueryParams& params) 
 }
 
 // Helper method to get the eds parameter.
-bool edsParam(const Http::Utility::QueryParams& params) {
+bool shouldIncludeEdsInDump(const Http::Utility::QueryParams& params) {
   return Utility::queryParam(params, "include_eds") != absl::nullopt;
 }
 
@@ -457,7 +457,7 @@ Http::Code AdminImpl::handlerClusters(absl::string_view url,
 
 void AdminImpl::addAllConfigToDump(envoy::admin::v3::ConfigDump& dump,
                                    const absl::optional<std::string>& mask,
-                                   const bool include_eds) const {
+                                   bool include_eds) const {
   Envoy::Server::ConfigTracker::CbsMap callbacks_map = config_tracker_.getCallbacksMap();
   if (include_eds) {
     if (!server_.clusterManager().clusters().empty()) {
@@ -485,7 +485,7 @@ void AdminImpl::addAllConfigToDump(envoy::admin::v3::ConfigDump& dump,
 absl::optional<std::pair<Http::Code, std::string>>
 AdminImpl::addResourceToDump(envoy::admin::v3::ConfigDump& dump,
                              const absl::optional<std::string>& mask, const std::string& resource,
-                             const bool include_eds) const {
+                             bool include_eds) const {
   Envoy::Server::ConfigTracker::CbsMap callbacks_map = config_tracker_.getCallbacksMap();
   if (include_eds) {
     if (!server_.clusterManager().clusters().empty()) {
@@ -568,6 +568,7 @@ ProtobufTypes::MessagePtr AdminImpl::dumpEndpointConfigs() const {
     const Upstream::Cluster& cluster = cluster_pair.second.get();
     Upstream::ClusterInfoConstSharedPtr cluster_info = cluster.info();
     envoy::config::endpoint::v3::ClusterLoadAssignment cluster_load_assignment;
+
     if (cluster_info->eds_service_name().has_value()) {
       cluster_load_assignment.set_cluster_name(cluster_info->eds_service_name().value());
     } else {
@@ -634,7 +635,7 @@ Http::Code AdminImpl::handlerConfigDump(absl::string_view url,
   Http::Utility::QueryParams query_params = Http::Utility::parseQueryString(url);
   const auto resource = resourceParam(query_params);
   const auto mask = maskParam(query_params);
-  const bool include_eds = edsParam(query_params);
+  const bool include_eds = shouldIncludeEdsInDump(query_params);
 
   envoy::admin::v3::ConfigDump dump;
 
@@ -934,9 +935,9 @@ Http::Code AdminImpl::request(absl::string_view path_and_query, absl::string_vie
                               Http::ResponseHeaderMap& response_headers, std::string& body) {
   AdminFilter filter(createCallbackFunction());
 
-  Http::RequestHeaderMapImpl request_headers;
-  request_headers.setMethod(method);
-  filter.decodeHeaders(request_headers, false);
+  auto request_headers = Http::RequestHeaderMapImpl::create();
+  request_headers->setMethod(method);
+  filter.decodeHeaders(*request_headers, false);
   Buffer::OwnedImpl response;
 
   Http::Code code = runCallback(path_and_query, response_headers, response, filter);
