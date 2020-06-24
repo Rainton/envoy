@@ -618,12 +618,12 @@ ProtobufTypes::MessagePtr AdminImpl::dumpEndpointConfigs() const {
     } else {
       auto& dynamic_endpoint = *endpoint_config_dump->mutable_dynamic_endpoint_configs()->Add();
       dynamic_endpoint.mutable_endpoint_config()->PackFrom(cluster_load_assignment);
-      /*dynamic_endpoint.set_version_info(
+      dynamic_endpoint.set_version_info(
           cluster_info->edsVersionInfo().has_value() ? cluster_info->edsVersionInfo().value() : "");
       if (cluster_info->edsLastUpdated().has_value()) {
         TimestampUtil::systemClockToTimestamp(cluster_info->edsLastUpdated().value(),
                                               *(dynamic_endpoint.mutable_last_updated()));
-      }*/
+      }
     }
   }
   return endpoint_config_dump;
