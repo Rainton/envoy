@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "envoy/common/time.h"
 #include "envoy/config/cluster/v3/circuit_breaker.pb.h"
 #include "envoy/config/cluster/v3/cluster.pb.h"
 #include "envoy/config/core/v3/address.pb.h"
@@ -789,6 +790,7 @@ ClusterInfoImpl::ClusterInfoImpl(
       throw EnvoyException("eds_cluster_config set in a non-EDS cluster");
     }
     eds_service_name_ = config.eds_cluster_config().service_name();
+    eds_last_updated_ = factory_context.dispatcher().timeSource().systemTime();
   }
 
   // TODO(htuch): Remove this temporary workaround when we have

@@ -610,9 +610,19 @@ ProtobufTypes::MessagePtr AdminImpl::dumpEndpointConfigs() const {
     if (!cluster_info->addedViaApi()) {
       auto& static_endpoint = *endpoint_config_dump->mutable_static_endpoint_configs()->Add();
       static_endpoint.mutable_endpoint_config()->PackFrom(cluster_load_assignment);
+      if (cluster_info->edsLastUpdated().has_value()) {
+        TimestampUtil::systemClockToTimestamp(cluster_info->edsLastUpdated().value(),
+                                              *(static_endpoint.mutable_last_updated()));
+      }
     } else {
       auto& dynamic_endpoint = *endpoint_config_dump->mutable_dynamic_endpoint_configs()->Add();
       dynamic_endpoint.mutable_endpoint_config()->PackFrom(cluster_load_assignment);
+      /*dynamic_endpoint.set_version_info(
+          cluster_info->edsVersionInfo().has_value() ? cluster_info->edsVersionInfo().value() : "");
+      if (cluster_info->edsLastUpdated().has_value()) {
+        TimestampUtil::systemClockToTimestamp(cluster_info->edsLastUpdated().value(),
+                                              *(dynamic_endpoint.mutable_last_updated()));
+      }*/
     }
   }
   return endpoint_config_dump;

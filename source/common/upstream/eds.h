@@ -1,5 +1,6 @@
 #pragma once
 
+#include "envoy/common/time.h"
 #include "envoy/config/cluster/v3/cluster.pb.h"
 #include "envoy/config/core/v3/base.pb.h"
 #include "envoy/config/core/v3/config_source.pb.h"
@@ -79,6 +80,7 @@ private:
   std::unique_ptr<Config::Subscription> subscription_;
   const LocalInfo::LocalInfo& local_info_;
   const std::string cluster_name_;
+  TimeSource& time_source_;
   std::vector<LocalityWeightsMap> locality_weights_map_;
   HostMap all_hosts_;
   Event::TimerPtr assignment_timeout_;

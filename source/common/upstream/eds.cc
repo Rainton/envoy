@@ -28,6 +28,7 @@ EdsClusterImpl::EdsClusterImpl(
       cluster_name_(cluster.eds_cluster_config().service_name().empty()
                         ? cluster.name()
                         : cluster.eds_cluster_config().service_name()),
+      time_source_(factory_context.dispatcher().timeSource()),
       validation_visitor_(factory_context.messageValidationVisitor()) {
   Event::Dispatcher& dispatcher = factory_context.dispatcher();
   assignment_timeout_ = dispatcher.createTimer([this]() -> void { onAssignmentTimeout(); });
@@ -113,7 +114,7 @@ void EdsClusterImpl::BatchUpdateHelper::batchUpdate(PrioritySet::HostUpdateCb& h
 }
 
 void EdsClusterImpl::onConfigUpdate(const Protobuf::RepeatedPtrField<ProtobufWkt::Any>& resources,
-                                    const std::string&) {
+                                    const std::string& version_info) {
   if (!validateUpdateSize(resources.size())) {
     return;
   }
@@ -140,6 +141,9 @@ void EdsClusterImpl::onConfigUpdate(const Protobuf::RepeatedPtrField<ProtobufWkt
     info_->stats().assignment_timeout_received_.inc();
     assignment_timeout_->enableTimer(std::chrono::milliseconds(stale_after_ms));
   }
+
+  setInfoEdsVersionInfo(version_info);
+  setInfoEdsLastUpdated(time_source_.systemTime());
 
   BatchUpdateHelper helper(*this, cluster_load_assignment);
   priority_set_.batchHostUpdate(helper);

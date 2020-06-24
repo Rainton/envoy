@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+#include "envoy/common/time.h"
 #include "envoy/config/cluster/v3/cluster.pb.h"
 #include "envoy/config/core/v3/base.pb.h"
 #include "envoy/config/core/v3/protocol.pb.h"
@@ -129,6 +130,10 @@ public:
   MOCK_METHOD(const absl::optional<envoy::config::core::v3::UpstreamHttpProtocolOptions>&,
               upstreamHttpProtocolOptions, (), (const));
   MOCK_METHOD(absl::optional<std::string>, eds_service_name, (), (const));
+  MOCK_METHOD(absl::optional<std::string>, edsVersionInfo, (), (const));
+  MOCK_METHOD(absl::optional<SystemTime>, edsLastUpdated, (), (const));
+  MOCK_METHOD(void, edsVersionInfo, (std::string), ());
+  MOCK_METHOD(void, edsLastUpdated, (SystemTime), ());
   MOCK_METHOD(void, createNetworkFilterChain, (Network::Connection&), (const));
   MOCK_METHOD(Http::Protocol, upstreamHttpProtocol, (absl::optional<Http::Protocol>), (const));
 
@@ -137,6 +142,8 @@ public:
 
   std::string name_{"fake_cluster"};
   absl::optional<std::string> eds_service_name_;
+  absl::optional<std::string> eds_version_info_;
+  absl::optional<SystemTime> eds_last_updated_;
   Http::Http1Settings http1_settings_;
   envoy::config::core::v3::Http2ProtocolOptions http2_options_;
   envoy::config::core::v3::HttpProtocolOptions common_http_protocol_options_;

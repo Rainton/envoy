@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "envoy/common/callback.h"
+#include "envoy/common/time.h"
 #include "envoy/config/cluster/v3/cluster.pb.h"
 #include "envoy/config/core/v3/base.pb.h"
 #include "envoy/config/core/v3/protocol.pb.h"
@@ -895,6 +896,26 @@ public:
   virtual absl::optional<std::string> eds_service_name() const PURE;
 
   /**
+   * @return eds version info returned by eds api.
+   */
+  virtual absl::optional<std::string> edsVersionInfo() const PURE;
+
+  /**
+   * @return eds last updated time.
+   */
+  virtual absl::optional<SystemTime> edsLastUpdated() const PURE;
+
+  /**
+   * Set the eds version info.
+   */
+  virtual void edsVersionInfo(std::string version_info) PURE;
+
+  /**
+   * Set the eds last updated time.
+   */
+  virtual void edsLastUpdated(SystemTime last_updated) PURE;
+
+  /**
    * Create network filters on a new upstream connection.
    */
   virtual void createNetworkFilterChain(Network::Connection& connection) const PURE;
@@ -934,6 +955,7 @@ protected:
 };
 
 using ClusterInfoConstSharedPtr = std::shared_ptr<const ClusterInfo>;
+using ClusterInfoSharedPtr = std::shared_ptr<ClusterInfo>;
 
 class HealthChecker;
 

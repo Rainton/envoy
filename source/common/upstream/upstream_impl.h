@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "envoy/common/time.h"
 #include "envoy/config/cluster/v3/cluster.pb.h"
 #include "envoy/config/core/v3/address.pb.h"
 #include "envoy/config/core/v3/base.pb.h"
@@ -597,6 +598,11 @@ public:
 
   absl::optional<std::string> eds_service_name() const override { return eds_service_name_; }
 
+  absl::optional<std::string> edsVersionInfo() const override { return eds_version_info_; }
+  absl::optional<SystemTime> edsLastUpdated() const override { return eds_last_updated_; }
+  void edsVersionInfo(std::string version_info) override { eds_version_info_ = version_info; }
+  void edsLastUpdated(SystemTime last_updated) override { eds_last_updated_ = last_updated; }
+
   void createNetworkFilterChain(Network::Connection&) const override;
   Http::Protocol
   upstreamHttpProtocol(absl::optional<Http::Protocol> downstream_protocol) const override;
@@ -656,6 +662,8 @@ private:
   const absl::optional<envoy::config::core::v3::UpstreamHttpProtocolOptions>
       upstream_http_protocol_options_;
   absl::optional<std::string> eds_service_name_;
+  absl::optional<std::string> eds_version_info_;
+  absl::optional<SystemTime> eds_last_updated_;
   const absl::optional<envoy::config::cluster::v3::Cluster::CustomClusterType> cluster_type_;
   const std::unique_ptr<Server::Configuration::CommonFactoryContext> factory_context_;
   std::vector<Network::FilterFactoryCb> filter_factories_;
@@ -722,6 +730,8 @@ public:
   // Upstream::Cluster
   HealthChecker* healthChecker() override { return health_checker_.get(); }
   ClusterInfoConstSharedPtr info() const override { return info_; }
+  void setInfoEdsVersionInfo(std::string version_info) { info_->edsVersionInfo(version_info); }
+  void setInfoEdsLastUpdated(SystemTime last_updated) { info_->edsLastUpdated(last_updated); }
   Outlier::Detector* outlierDetector() override { return outlier_detector_.get(); }
   const Outlier::Detector* outlierDetector() const override { return outlier_detector_.get(); }
   void initialize(std::function<void()> callback) override;
@@ -763,8 +773,8 @@ protected:
   Init::WatcherImpl init_watcher_;
 
   Runtime::Loader& runtime_;
-  ClusterInfoConstSharedPtr info_; // This cluster info stores the stats scope so it must be
-                                   // initialized first and destroyed last.
+  ClusterInfoSharedPtr info_; // This cluster info stores the stats scope so it must be
+                              // initialized first and destroyed last.
   HealthCheckerSharedPtr health_checker_;
   Outlier::DetectorSharedPtr outlier_detector_;
 
