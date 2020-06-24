@@ -795,7 +795,6 @@ ClusterInfoImpl::ClusterInfoImpl(
       throw EnvoyException("eds_cluster_config set in a non-EDS cluster");
     }
     eds_service_name_ = config.eds_cluster_config().service_name();
-    eds_last_updated_ = factory_context.dispatcher().timeSource().systemTime();
   }
 
   // TODO(htuch): Remove this temporary workaround when we have

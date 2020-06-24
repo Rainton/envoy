@@ -114,6 +114,10 @@ ClusterFactoryImplBase::create(const envoy::config::cluster::v3::Cluster& cluste
   std::pair<ClusterImplBaseSharedPtr, ThreadAwareLoadBalancerPtr> new_cluster_pair =
       createClusterImpl(cluster, context, factory_context, std::move(stats_scope));
 
+  if (cluster.has_eds_cluster_config()) {
+    new_cluster_pair.first->setInfoEdsLastUpdated(context.dispatcher().timeSource().systemTime());
+  }
+
   if (!cluster.health_checks().empty()) {
     // TODO(htuch): Need to support multiple health checks in v2.
     if (cluster.health_checks().size() != 1) {
