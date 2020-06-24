@@ -1,6 +1,5 @@
 #include "common/upstream/cluster_factory_impl.h"
 
-#include "common/common/logger.h"
 #include "envoy/config/cluster/v3/cluster.pb.h"
 
 #include "common/http/utility.h"
@@ -10,8 +9,6 @@
 #include "common/upstream/health_checker_impl.h"
 
 #include "server/transport_socket_config_impl.h"
-#include <chrono>
-#include <ctime>
 
 namespace Envoy {
 namespace Upstream {
