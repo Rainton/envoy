@@ -114,7 +114,7 @@ void EdsClusterImpl::BatchUpdateHelper::batchUpdate(PrioritySet::HostUpdateCb& h
 }
 
 void EdsClusterImpl::onConfigUpdate(const std::vector<Config::DecodedResourceRef>& resources,
-                                    const std::string&) {
+                                    const std::string& version_info) {
   if (!validateUpdateSize(resources.size())) {
     return;
   }
