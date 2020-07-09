@@ -52,7 +52,7 @@ MockClusterInfo::MockClusterInfo()
   ON_CALL(*this, connectTimeout()).WillByDefault(Return(std::chrono::milliseconds(1)));
   ON_CALL(*this, idleTimeout()).WillByDefault(Return(absl::optional<std::chrono::milliseconds>()));
   ON_CALL(*this, name()).WillByDefault(ReturnRef(name_));
-  ON_CALL(*this, eds_service_name()).WillByDefault(ReturnPointee(&eds_service_name_));
+  ON_CALL(*this, edsServiceName()).WillByDefault(ReturnPointee(&eds_service_name_));
   ON_CALL(*this, edsVersionInfo()).WillByDefault(Return(eds_version_info_));
   ON_CALL(*this, edsLastUpdated()).WillByDefault(Return(eds_last_updated_));
   ON_CALL(*this, http1Settings()).WillByDefault(ReturnRef(http1_settings_));

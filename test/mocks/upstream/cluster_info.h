@@ -131,7 +131,7 @@ public:
   MOCK_METHOD(bool, warmHosts, (), (const));
   MOCK_METHOD(const absl::optional<envoy::config::core::v3::UpstreamHttpProtocolOptions>&,
               upstreamHttpProtocolOptions, (), (const));
-  MOCK_METHOD(absl::optional<std::string>, eds_service_name, (), (const));
+  MOCK_METHOD(absl::optional<std::string>, edsServiceName, (), (const));
   MOCK_METHOD(absl::optional<std::string>, edsVersionInfo, (), (const));
   MOCK_METHOD(absl::optional<SystemTime>, edsLastUpdated, (), (const));
   MOCK_METHOD(void, edsVersionInfo, (std::string), ());
